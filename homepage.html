@@ -1,0 +1,183 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Scribbled Tales | Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="homepage">
+        <div class="homepage">
+            <!-- Top Header section -->
+            <div class="top-header-section">
+                <!-- Profile picture in header -->
+                <div class="profile-pic-section">
+                    <img src="img/home-left-image2.jpg" alt="">
+                    <h2 id="welcome-heading">Welcome {{ username }} !</h2>
+                </div>
+                <!-- Pending stories count section in header -->
+                <div class="pending-stories-count-section">
+                    <!-- If number of games > 1 show this tag -->
+                    <h3  v-if="games.length > 1"><span class="pending-count">{{ games.length }}</span> games</h3>
+                    <!-- If number of games = 1 show this tag -->
+                    <h3  v-if="games.length == 1"><span class="pending-count">{{ games.length }}</span> game</h3>
+                    <!-- If number of games = 0 show this tag -->
+                    <h3  v-if="games.length == 0"><span class="pending-count">0</span> games</h3>
+                </div>
+    
+                <!-- Logout button -->
+                <div class="logout-button">
+                    <button v-on:click="logout" class="logout-button-content"><span class="material-icons">power_settings_new</span></button>
+                </div>
+            </div>
+
+            <!-- Navbar after the header -->
+            <div class="homepage-navigation-tab-section">
+                <!-- My Games Tab -->
+                <div class="homepage-navigation-item active" v-on:click="changeActive(0)">
+                    <h3 class="homepage-navigation-item-content">My Games</h3>
+                </div>
+                <!-- All Games Tab -->
+                <div class="homepage-navigation-item" v-on:click="changeActive(1)">
+                    <h3 class="homepage-navigation-item-content">All Games</h3>
+                </div>
+            </div>
+
+            <!-- Games showcase section -->
+            <div class="games-showcase-wrapper">
+                <!-- My games showcase section -->
+                <div id="my-games-section" class="game-showcase current-showcase">
+                    <div class="story-list-section">
+                        <div class="stories-list-header">
+                            <h3>Your Story Boards</h3>
+                        </div>
+            
+                        <div class="stories-list">
+                            <!-- Adding game button section -->
+                            <div class="add-story">
+                                <div class="add-button" id="add-game-button" v-on:click="addGame">
+                                    <span class="material-icons">add</span>
+                                </div>
+                            </div>
+                        
+                            <!-- Section which shows each game -->
+                            <div class="story" v-for="game in games">
+                                <!-- The close button -->
+                                <div class="close-button" v-on:click="showDeletePrompt(game)">
+                                    <span>&times;</span>
+                                </div>
+                                
+                                <!-- The image and the game name -->
+                                <div class="story-content" v-on:click="gameClick(game)">
+                                    <div class="story-content-image">
+                                        <img src="img/home-left-image2.jpg" alt="">
+                                    </div>
+                                    <div class="story-content-header">
+                                        <h3>{{ game.name }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                                                
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- All games showcase section -->
+                <div id="all-games-section" class="game-showcase">
+                    <div class="story-list-section">
+                        <div class="stories-list-header">
+                            <h3>All Story Boards</h3>
+                        </div>
+
+                        <!-- Story search bar section -->
+                        <div class="story-search-bar-section">
+                            <div class="story-search-bar">
+                                <!-- Search bar icon -->
+                                <div class="search-icon-section">
+                                    <span class="material-icons" class="search-icon">search</span>
+                                </div>
+                                <!-- The search story input -->
+                                <div class="search-story-input-section">
+                                    <input type="text" placeholder="Search game" v-model="search" class="search-story-input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section which shows list of all games -->
+                        <div class="stories-list">
+                            <div class="story" v-for="game in filteredSceneNames">
+                                <div class="story-content" v-on:click="playPublicGame(game)" >
+                                    <div class="story-content-image">
+                                        <img src="img/home-left-image2.jpg" alt="">
+                                    </div>
+                                    <div class="story-content-header">
+                                        <h3>{{ game.name }}</h3>
+                                    </div>
+                                </div>
+                            </div>                
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Create game form section -->
+        <div class="create-game-modal" id="create-game-modal">
+            <!-- Opaque black overlay behing form -->
+            <div class="overlay"></div>
+            <div class="create-game-form-wrapper">
+                <div class="create-game-form">
+                    <!-- Question -->
+                    <div class="create-game-question">
+                        <h3>What should your new game be named ?</h3>
+                    </div>
+                    <!-- Input -->
+                    <div class="create-game-input">
+                        <input type="text" placeholder="Enter Game Name" id="game-name" ref="gameInput">
+                    </div>
+                    <!-- Cancel and create button -->
+                    <div class="create-game-buttons">
+                        <button class="cancel-button" id="cancel-button" v-on:click="removePopUp">Cancel</button>
+                        <button class="create-button" id="create-button" v-on:click="createGame">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+         <!-- Create game form section -->
+        <div class="delete-game-modal" id="delete-game-prompt-modal">
+            <!-- Opaque black overlay behing form -->
+            <div class="overlay"></div>
+            <div class="create-game-form-wrapper">
+                <div class="delete-game-form">
+                    <!-- Question -->
+                    <div class="create-game-question">
+                        <h3>Are you sure you want to delete the game ?</h3>
+                    </div>
+    
+                    <!-- Cancel and delete button -->
+                    <div class="create-game-buttons">
+                        <button class="cancel-button" id="cancel-button" v-on:click="removeDeletePrompt">Cancel</button>
+                        <button class="create-button" id="create-button" v-on:click="deleteGame(deleteGameDetails)">Delete Game</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loader-wrapper" id="loadingDiv">
+        <span class="loader"><span class="loader-inner"></span></span>
+    </div>
+
+    <!-- Firebase cdn extensions -->
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-storage.js"></script>
+    
+    <script src="js/home.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Play</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="gameplay" class="game-wrapper">
+        <!-- Opaque transparent overlays for easing in and out -->
+        <div class="overlay"></div>
+        <div class="overlay2" id="overlay2">
+            <p>{{currentScene.sceneBody}}</p>
+        </div>
+        <div class="game" v-bind:style="setBackgroundImage(currentScene.bg_image)">
+            <div class="game-board-section">
+                <!-- Game controls -->
+                <div class="game-control-icons">
+                    <!-- Restart Game -->
+                    <div class="restart-button control-icon" v-on:click="restartGame" >
+                        <span class="material-icons">fast_rewind</span>
+                    </div>
+                    <!-- Audio control -->
+                    <div class="audio-button control-icon" v-on:click="toggleAudio" >
+                        <!-- Unmute audio -->
+                        <span class="material-icons" v-show="!audio">volume_up</span>
+                        <!-- Mute audio -->
+                        <span class="material-icons" v-show="audio">volume_off</span>
+                    </div>
+                    <!-- Full screen contol -->
+                    <div class="full-screen control-icon" v-on:click="toggleFullScreen">
+                        <!-- Full screen active -->
+                        <span class="material-icons" v-show="!fullScreen">fullscreen</span>
+                        <!-- Full screen exit -->
+                        <span class="material-icons" v-show="fullScreen">fullscreen_exit</span>
+                    </div>
+                    <!-- Close game -->
+                    <div class="close control-icon" v-on:click="closeGame">
+                        <span class="material-icons">close</span>
+                    </div>
+                </div>
+
+
+                <div class="game-board">
+                    <!-- Scene passage section -->
+                    <div class="game-passage-section">
+                        <p class="game-passage"> {{ currentScene.sceneBody }} </p>
+                    </div>
+                    <!-- Scene options -->
+                    <div class="game-options-section">
+                        <ul class="game-options">
+                            <li class="game-option" v-on:click="getNextScene(option)" v-for="option in currentScene.options">{{ option.option }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- For the background audio -->
+            <audio style="display:none" autoplay id="audioDiv">
+                <source v-bind:src="currentScene.bg_audio" type="audio/mpeg" >
+            </audio>
+        </div> 
+    </div>
+
+    <!-- Firebase cdn extensions -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.4.2/gsap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-storage.js"></script>
+
+    <script src="js/game.js"></script>
+</body>
+</html>

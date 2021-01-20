@@ -1,0 +1,336 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Scribbled Tales | Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="dashboard">
+        <!-- The top editor section -->
+        <div class="top-editor-section">
+            <!-- For the rectangular grids -->
+            <svg width="100%" height="100%" id="gridMain">
+                <defs>
+                    <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+                    <path d="M 8 0 L 0 0 0 8" fill="none" stroke="gray" stroke-width="0.5"/>
+                    </pattern>
+                    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+                    <rect width="80" height="80" fill="url(#smallGrid)"/>
+                    <path d="M 80 0 L 0 0 0 80" fill="none" stroke="gray" stroke-width="1"/>
+                    </pattern>
+                </defs>
+                
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+            
+            <!-- For each box in the scene -->
+            <div class="scene-boxes">
+                <div class="dragItem" class="fill" draggable="true" v-for="scene in scenes" v-bind:class="{start:checkStart(scene.sceneId)}" v-bind:style="{top:scene.top,left:scene.left}" v-on:dragstart="dragStart(scene,$event)" v-on:dragend="dragEnd(scene,$event)" v-on:click.left="editSceneMethod(scene)" v-on:click.right="addStartScene(scene.sceneId)">
+                    <h3>{{ scene.sceneName }}</h3>
+                </div>
+            </div>
+
+            <!-- For drawing lines between related scenes -->
+            <div class="scene-lines">
+                <template v-for="scene in scenes">
+                    <svg class="scene-line" v-for="option in scene.options" style="height:100%;width:100%;">
+                        <line v-show="checkOption(option.link)" v-bind:x1="scene.centerX" v-bind:y1="scene.centerY" v-bind:x2="findLinkLeft(option.link)" v-bind:y2="findLinkTop(option.link)" style="stroke:rgb(117, 117, 117);stroke-width:2"/>
+                    </svg>
+                </template>
+            </div>
+        </div>
+    
+        <!-- For the bottom navigation bar -->
+        <div class="bottom-navigation-section">
+            <!-- Home button -->
+            <div class="home-button" v-on:click="homeIntent">
+                <span class="material-icons">home</span>
+            </div>
+    
+            <!-- Game name -->
+            <div class="game-name">
+                <h2>{{gameName}}</h2>
+                <!-- <span class="material-icons">arrow_drop_up</span> -->
+            </div>
+    
+            <div class="play-passage-section">
+                <!-- Play button -->
+                <div class="play-button" v-on:click="playGame">
+                    <span class="material-icons">play_arrow</span>
+                    <h3>Play</h3>
+                </div>
+    
+                <!-- Add scene button -->
+                <div class="passage-button" v-on:click="showSceneModal">
+                    <span class="material-icons">add_circle_outline</span>
+                    <h3>Scene</h3>
+                </div>
+
+                <!-- Publish game button -->
+                <div class="publish-game-button-section" v-on:click="publishGame">
+                    <!-- If already published show update icon-->
+                    <span class="material-icons" v-show="isPublished">update</span>
+                    <!-- If not already published show publish icon-->
+                    <span class="material-icons" v-show="!isPublished">publish</span>
+                    <!-- If not already published show publish-->
+                    <h3 class="publish-game-button" v-show="!isPublished" >Publish</h3>
+                    <!-- If already published show update-->
+                    <h3 class="publish-game-button" v-show="isPublished" >Update</h3>
+                </div>
+            </div>   
+        </div>
+
+        <!-- Create scene section -->
+        <div class="create-scene-modal" id="create-scene-modal">
+            <!-- Opaque transparent overlay behind form -->
+            <div class="overlay"></div>
+            <div class="create-scene-form-wrapper">
+                <div class="create-scene-form">
+                    <div class="create-scene-form-section">
+                        <!-- Add Scene name -->
+                        <div class="add-scene">
+                            <input type="text" placeholder="Untitled Scene" id="scene-name" ref="sceneName">
+                        </div>
+                        
+                        <!-- Add Scene passage -->
+                        <div class="add-passage">
+                            <div class="passage-input">
+                                <label for="passage-input">Enter the body text of your passage here</label>
+                                <textarea name="passage-input" id="passage-body" ref="sceneBody"></textarea>
+                            </div>
+                        </div>
+    
+                        <!-- Add Background image -->
+                        <div class="add-background-image">
+                            <label for="bg-image">Add a background Image</label>
+                            <progress value="0" max="100" id="img-uploader">0%</progress>
+                            <input type="file" name="img" id="img" accept="image/*" v-on:change="uploadImage" ref="sceneImage">
+                        </div>
+    
+                        <!-- Add background audio -->
+                        <div class="add-background-audio">
+                            <label for="bg-audio">Add background audio</label>
+                            <progress value="0" max="100" id="audio-uploader">0%</progress>
+                            <input type="file" name="audio" id="audio" accept="audio/*" v-on:change="uploadAudio" ref="sceneAudio">
+                        </div>
+    
+                        <!-- Add options -->
+                        <div class="add-options">
+                            <div class="add-option-link">
+                                <!-- Add option name -->
+                                <div class="add-option">
+                                    <label for="input-option">Add option</label>
+                                    <input type="text" name="input-option" id="" placeholder="Enter Option here" ref="sceneOption">
+                                </div>
+    
+                                <!-- Add to which scene to be linked -->
+                                <div class="add-link">
+                                    <label for="input-link">Add link</label>
+                                    <select name="input-link" id="" ref="sceneLink">
+                                        <template v-for="scene in scenes">
+                                            <option v-bind:value="scene.sceneId">{{scene.sceneName}}</option>
+                                        </template>
+                                    </select>
+                                </div>
+    
+                                <!-- Add option button -->
+                                <div class="add-option-button">
+                                    <button class="add-opt-button" id="create-scene-button" v-on:click="addOption">Add Option</button>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <!-- Cancel and make scene buttons -->
+                        <div class="create-scene-buttons">
+                            <button class="cancel-button" id="cancel-scene-modal-button" v-on:click="removeSceneModal">Cancel</button>
+                            <button class="create-button" id="create-scene-button" v-on:click="addScene">Make Scene</button>
+                        </div>
+                    </div>
+
+                    <!-- Shows all options of the scene -->
+                    <div class="options-selected">
+                        <h3>Options Selected</h3>
+
+                        <div class="options-selected-view">
+                            <div class="show-options">
+                                <!-- Looping through each option in options -->
+                                <div class="show-option-link" v-for="(option,index) in options">
+                                    <!-- option name -->
+                                    <div class="show-option">
+                                        <label for="input-option">Option</label>
+                                        <input type="text" name="input-option" id="" v-bind:value="option.option" disabled="true">
+                                    </div>
+        
+                                    <!-- Linked scene -->
+                                    <div class="show-link">
+                                        <label for="input-link">Link</label>
+                                        <select name="input-link" id="" disabled="true">
+                                            <option value="Scene 1">{{ getSceneName(option.link) }}</option>
+                                        </select>
+                                    </div>
+                                    <!-- Delete option button -->
+                                    <div class="show-option-button">
+                                        <button class="show-opt-button" id="create-scene-button" v-on:click="removeOption(index)">Delete Option</button>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+         <!-- Edit scene section -->
+        <div class="edit-scene-modal" id="edit-scene-modal">
+            <!-- Opaque transparent overlay behind form -->
+            <div class="overlay"></div>
+            <div class="edit-scene-form-wrapper">
+                <div class="edit-scene-form">
+                    <div class="edit-scene-form-section">
+                        <!-- Edit Scene name -->
+                        <div class="edit-scene">
+                            <input type="text" placeholder="Untitled Scene" id="scene-name" v-model="editScene.sceneName">
+                        </div>
+                        
+                        <!-- Edit Scene passage -->
+                        <div class="edit-passage">
+                            <div class="passage-input">
+                                <label for="passage-input">Enter the body text of your passage here</label>
+                                <textarea name="passage-input" id="passage-body" v-model="editScene.sceneBody"></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Edit Background image -->
+                        <div class="edit-background-image">
+                            <label for="bg-image">Add a background Image</label>
+                            <progress value="0" max="100" id="edit-img-uploader">0%</progress>
+                            <input type="file" name="img" id="edit-img" ref="editImage" accept="image/*" v-on:change="editUploadImage(editScene,$event)" >
+                        </div>
+                        
+                        <!-- Edit background audio -->
+                        <div class="edit-background-audio">
+                            <label for="bg-audio">Add background audio</label>
+                            <progress value="0" max="100" id="edit-audio-uploader">0%</progress>
+                            <input type="file" name="audio" id="edit-audio" ref="editAudio" accept="audio/*" v-on:change="editUploadAudio(editScene,$event)" >
+                        </div>
+                        
+                        <!-- Edit options -->
+                        <div class="edit-options">
+                            <div class="edit-option-link">
+                                <!-- Edit option name -->
+                                <div class="edit-option">
+                                    <label for="input-option">Add option</label>
+                                    <input type="text" name="input-option" id="" placeholder="Enter Option here" ref="sceneEditOption">
+                                </div>
+                                
+                                <!-- Edit to which scene to be linked -->
+                                <div class="edit-link">
+                                    <label for="input-link">Add link</label>
+                                    <select name="input-link" id="" ref="sceneEditLink">
+                                        <template v-for="scene in scenes">
+                                            <option v-bind:value="scene.sceneId">{{scene.sceneName}}</option>
+                                        </template>
+                                    </select>
+                                </div>
+                                
+                                <!-- Edit option button -->
+                                <div class="edit-option-button">
+                                    <button class="edit-opt-button" v-on:click="addInEditOption">Add Option</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+                        <!-- Cancel update and delete scene buttons -->
+                        <div class="edit-scene-buttons">
+                            <button class="cancel-button" v-on:click="removeEditSceneModal(editScene.sceneId)">Cancel</button>
+                            <button class="create-button" v-on:click="updateScene">Update Scene</button>
+                            <button class="delete-button" v-on:click="deleteScene">Delete Scene</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Shows all options of the scene -->
+                    <div class="options-selected">
+                        <h3>Options Selected</h3>
+                        
+                        <div class="options-selected-view">
+                            <div class="show-options">
+                                <!-- Looping through each option in options -->
+                                <div class="show-option-link" v-for="(option,index) in editScene.options">
+                                    <!-- option name -->
+                                    <div class="show-option">
+                                        <label for="input-option">Option</label>
+                                        <input type="text" name="input-option" id="" v-bind:value="option.option" disabled="true">
+                                    </div>
+                                    
+                                    <!-- Linked scene -->
+                                    <div class="show-link">
+                                        <label for="input-link">Link</label>
+                                        <select name="input-link" id="" disabled="true">
+                                            <option value="Scene 1">{{ getSceneName(option.link) }}</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Delete option button -->
+                                    <div class="show-option-button">
+                                        <button class="show-opt-button" id="create-scene-button" v-on:click="removeInEditOption(index)">Delete Option</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Prompt to select a start scene if not selected -->
+        <div class="create-game-modal" id="start-error-modal">
+            <div class="overlay"></div>
+            <div class="create-game-form-wrapper">
+                <div class="create-game-form">
+                    <div class="create-game-question">
+                        <h3>Please choose a start scene to play</h3>
+                    </div>
+        
+                    <div class="create-game-buttons">
+                        <button class="create-button" v-on:click="closeStartError">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Propmpt on top to give info on how to select start scene -->
+        <div class="start-scene-info-section" id="start-info-section">
+            <div class="start-scene-info-wrapper">
+                <p class="start-scene-info">Right click on scene box to select your start scene</p>
+                <button class="start-info-close-btn" v-on:click="removeStartInfo">&times;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div class="loader-wrapper" id="loadingDiv">
+        <span class="loader"><span class="loader-inner"></span></span>
+    </div>
+
+    <!-- Firebase cdn extensions -->
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-storage.js"></script>
+
+    <script src="js/dashboard.js"></script>
+</body>
+

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scribbled Tales</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="left-image-section">
+
+        </div>
+
+        <div class="right-register-section">
+            <div class="login-intent-button">
+                <button onclick="backToLogin()"><span>&lt;</span>  Back to Login</button>
+            </div>
+
+            <div class="error-display" id="error-display">
+                <div class="error-display-wrapper">
+                    <span id="error-display-text"></span>
+                </div>
+            </div>
+            
+            <div class="register-header">
+                <h1>Create an Account</h1>         
+            </div>
+
+            <div class="register-form-wrapper">
+                <form action="#" class="register-form">
+                    <div class="first-name-input form-input">
+                        <label for="first-name">First Name</label>
+                        <input type="text" placeholder="Enter First Name" id="fname">
+                    </div>
+
+                    <div class="last-name-input form-input">
+                        <label for="last-name">Last Name</label>
+                        <input type="text" placeholder="Enter Last Name" id="lname">
+                    </div>
+
+
+                    <div class="email-input form-input">
+                        <label for="email">Email</label>
+                        <input type="email" placeholder="Enter Email" id="email">
+                    </div>
+
+                    <div class="password-input form-input">
+                        <label for="password">Password</label>
+                        <input type="password" placeholder="Enter Password" id="password">
+                    </div>
+
+                    <div class="confirm-password-input form-input">
+                        <label for="confirm-password">Confirm password</label>
+                        <input type="password" placeholder="Re-enter Password" id="repassword">
+                    </div>
+                    
+                    <div class="register-button">
+                        <button id="signupBtn">Sign Up</button>
+                    </div>
+
+                    <!-- <div class="google-sign-up">
+                        <a href="#">Or sign up with <img src="img/google-icon.png" alt="" class="google-icon"></a>
+                    </div> -->
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="loader-wrapper" id="loadingDiv">
+        <span class="loader"><span class="loader-inner"></span></span>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-database.js"></script>
+
+    <script src="js/register.js"></script>
+</body>
+
+<!-- <script>
+    require('./renderer.js');
+</script> -->
+</html>

@@ -1,0 +1,70 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loader Page</title>
+    <style>
+        body {
+            height: 100vh;
+            background-color: #1D2837;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        img {
+            z-index: 1;
+            animation: pulse 1s infinite;
+        }
+
+        /* To rotate the image */
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+            }
+
+            70% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(0.8);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader image -->
+    <img src="img/icon.png" alt="Scribble Tales">
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-auth.js"></script>
+
+    <script>
+        var firebaseConfig = {
+            apiKey: "AIzaSyBOpVWAj8Ls_XqM0nlh0gO9Jbg1bflKd10",
+            authDomain: "scribbledtales-730f8.firebaseapp.com",
+            databaseURL: "https://scribbledtales-730f8.firebaseio.com",
+            projectId: "scribbledtales-730f8",
+            storageBucket: "scribbledtales-730f8.appspot.com",
+            messagingSenderId: "298588752903",
+            appId: "1:298588752903:web:835f9600cc6b3fbeb76ea2"
+            };
+            
+            firebase.initializeApp(firebaseConfig);
+
+            const electron = require('electron');
+            const {ipcRenderer} = electron;
+
+            firebase.auth().onAuthStateChanged(user => {
+            if(user) {
+                console.log(user);
+                ipcRenderer.send('loggedin');
+            } else {
+                console.log("user not logged in");
+                ipcRenderer.send('loggedout');
+            }
+            });
+    </script>
+</body>
+</html>
